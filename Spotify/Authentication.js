@@ -1,7 +1,8 @@
 var CLIENT_ID = 'clientid';
 var CLIENT_SECRET = 'clientsecret';
 
-// Refreshes the access token of expired sessions and makes a new request to Salesforce.
+/* Refreshes the access token of expired sessions and makes a new request to Spotify.
+ */
 function refreshToken(sf, func) {
   var response;
   var content;
@@ -12,16 +13,18 @@ function refreshToken(sf, func) {
   } catch (e) {
     content = e.toString();
   }
-  // Detects an expired session by selecting responses that contain the expired session error code. Calls the OAuth service refresh function to refresh the access token and retries the request.
+  // detects an expired session by selecting responses that contain the expired session error code. 
   if (content.indexOf('INVALID_SESSION_ID') !== -1) {
+    // calls the OAuth service refresh function to refresh the access token and retries the request.
     sf.refresh();
     return func();
   }
-  // Returns the HTTP response of the successful request.
+  // returns HTTP response of the request.
   return response;
 }
 
-// creates OAuth2 service and sets properties necessary for OAuth flow
+/* Creates OAuth2 service and sets required properties for OAuth flow
+ */
 function getService() {
   return OAuth2.createService('Spotify')
       .setAuthorizationBaseUrl('https://accounts.spotify.com/authorize')
@@ -30,10 +33,11 @@ function getService() {
       .setClientSecret(CLIENT_SECRET)
       .setCallbackFunction('callback')
       .setPropertyStore(PropertiesService.getUserProperties())
-      .setScope('user-read-recently-played');
+      .setScope('playlist-modify-private playlist-modify-public user-top-read ugc-image-upload');
 }
 
-// Completes authentication flow by determining whether Spotify granted access to the specified scopes.
+/* Completes authentication flow by determining whether Spotify granted access to the specified scopes.
+ */
 function callback(request) {
   var sp = getService();
   var authorized = sp.handleCallback(request);
@@ -44,7 +48,9 @@ function callback(request) {
   }
 }
 
-// Logs redirect uri to be used as the "callback url" in Spotify.
+/* Logs redirect uri to be used as the "callback url" in Spotify.
+   Only to be used during initial authorization & web-app creation process.
+ */
 function getCallbackUrl() {
   Logger.log(OAuth2.getRedirectUri());
 }

@@ -9,20 +9,22 @@ var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("topArtists");
  */
 function fetchTopArtists() {
   var column = 1;
-  var sf = getService();
-  if (sf.hasAccess()) {
+  var sp = getService();
+  if (sp.hasAccess()) {
     
     var lengthOfTime = "short";
-    column = fillCells(column, sf, lengthOfTime);
+    column = fillCells(column, sp, lengthOfTime);
     
     lengthOfTime = "medium";
-    column = fillCells(column, sf, lengthOfTime);
+    column = fillCells(column, sp, lengthOfTime);
     
     lengthOfTime = "long";
-    column = fillCells(column, sf, lengthOfTime);
+    column = fillCells(column, sp, lengthOfTime);
+    
+    getPopularArtistsHits();
     
   } else {
-    var authUrl = sf.getAuthorizationUrl();
+    var authUrl = sp.getAuthorizationUrl();
     Logger.log('Browse to URL below. Then run the script. %s',
         authUrl);
   }
@@ -30,15 +32,14 @@ function fetchTopArtists() {
 
 /* Calls the Spotify API with the GET request and fills the sheet with the artist names contained in the response to the query.
  */
-function fillCells(column, sf, lengthOfTime) {
+function fillCells(column, sp, lengthOfTime) {
   
   var url = "https://api.spotify.com/v1/me/top/artists?time_range=" + lengthOfTime + "_term&limit=10";
   
-  var log = '<br>Fetching data from Spotify...<br><br>';
-  var response = refreshToken(sf, function() {
+  var response = refreshToken(sp, function() {
       return UrlFetchApp.fetch(url, {
         headers: {
-          Authorization: 'Bearer ' + sf.getAccessToken(),
+          Authorization: 'Bearer ' + sp.getAccessToken(),
         }
       });
     });
@@ -59,7 +60,14 @@ function fillCells(column, sf, lengthOfTime) {
     cell.offset(i+1, 0).setValue(topArtists[i]);
   }
   
-  return column + 1;
+  var topArtistsIds = getValues(result, "uri");
+  
+  for (var i = 0; i < topArtistsIds.length; i++) {
+    var artistId = getId(topArtistsIds[i]);
+    cell.offset(i+1, 1).setValue(artistId);
+  }
+  
+  return column + 2;
   
 }
 
@@ -78,3 +86,7 @@ function getValues(obj, key) {
     return objects;
 }
 
+function getId(idCode) {
+  // let idCode = "spotify:artist:1Xyo4u8uXC1ZmMpatF05PJ"
+  return idCode.substring(15);
+}

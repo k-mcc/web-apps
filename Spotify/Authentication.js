@@ -3,7 +3,7 @@ var CLIENT_SECRET = 'clientsecret';
 
 /* Refreshes the access token of expired sessions and makes a new request to Spotify.
  */
-function refreshToken(sf, func) {
+function refreshToken(sp, func) {
   var response;
   var content;
   try {
@@ -16,7 +16,7 @@ function refreshToken(sf, func) {
   // detects an expired session by selecting responses that contain the expired session error code. 
   if (content.indexOf('INVALID_SESSION_ID') !== -1) {
     // calls the OAuth service refresh function to refresh the access token and retries the request.
-    sf.refresh();
+    sp.refresh();
     return func();
   }
   // returns HTTP response of the request.

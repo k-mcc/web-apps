@@ -8,50 +8,58 @@ var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("topArtists");
 // qualifier options: acousticness, danceability, energy, instrumentalness, 
 //                    liveness, loudness, speechiness, valence, & tempo
 function calculateBestPlaylist(qualifier, minScore) {
-  var row = 6; // "place" of the target artists.
-  var column = 2;
-  var hits = [];
-  for (var i = 0; i < 3; i++) { // iterates 3 times, once for each of the time lengths.
-    var topArtistId = sheet.getRange(row, column).getValue();
-    hits.push(getArtistTracks(topArtistId));
-    column = column + 2;
-  }
-  var cell = sheet.getRange(sheet.getLastRow()+1, 1);
+  var playlist = [];
+  
+  for (var row = 2; row <= sheet.getLastRow(); row++) {
+    var column = 2;
+    var hits = [];
+    for (var i = 0; i < 3; i++) { // iterates 3 times, once for each of the time lengths.
+      var topArtistId = sheet.getRange(row, column).getValue();
+      hits.push(getArtistTracks(topArtistId));
+      column = column + 2;
+    }
+    var cell = sheet.getRange(sheet.getLastRow()+1, 1);
   
   
-  var track1Types = getValues(hits[0], "type");
-  var track1Uris = getValues(hits[0], "uri");
+    var track1Types = getValues(hits[0], "type");
+    var track1Uris = getValues(hits[0], "uri");
   
-  var topTracks = [];
+    var topTracks = [];
   
-  for (var i = 0; i < track1Uris.length; i++) {
-    if (  track1Types[i] == "track"  ) {
-      var id = track1Uris[i].substring(14);
-      topTracks.push(id);
+    for (var i = 0; i < track1Uris.length; i++) {
+      if (  track1Types[i] == "track"  ) {
+        var id = track1Uris[i].substring(14);
+        topTracks.push(id);
+      }
+    }
+  
+    var track2Types = getValues(hits[1], "type");
+    var track2Uris = getValues(hits[1], "uri");
+  
+    for (var i = 0; i < track2Uris.length; i++) {
+      if (  track2Types[i] == "track"  ) {
+        var id = track2Uris[i].substring(14);
+        topTracks.push(id);
+      }
+    }
+  
+    var track3Types = getValues(hits[2], "type");
+    var track3Uris = getValues(hits[2], "uri");
+    
+    for (var i = 0; i < track3Uris.length; i++) {
+      if (  track3Types[i] == "track"  ) {
+        var id = track3Uris[i].substring(14);
+        topTracks.push(id);
+      }
+    }
+    
+    var bestTracksInRow = analyzeTrackList(topTracks, qualifier, minScore);
+    for (var i = 0; i < bestTracksInRow.length; i++) {
+      playlist.push(bestTracksInRow[i]);
     }
   }
   
-  var track2Types = getValues(hits[1], "type");
-  var track2Uris = getValues(hits[1], "uri");
-  
-  for (var i = 0; i < track2Uris.length; i++) {
-    if (  track2Types[i] == "track"  ) {
-      var id = track2Uris[i].substring(14);
-      topTracks.push(id);
-    }
-  }
-  
-  var track3Types = getValues(hits[2], "type");
-  var track3Uris = getValues(hits[2], "uri");
-  
-  for (var i = 0; i < track3Uris.length; i++) {
-    if (  track3Types[i] == "track"  ) {
-      var id = track3Uris[i].substring(14);
-      topTracks.push(id);
-    }
-  }
-  
-  return analyzeTrackList(topTracks, qualifier, minScore);
+  return playlist;
 }
 
 

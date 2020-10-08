@@ -1,3 +1,13 @@
+// qualifier options: acousticness, danceability, energy, instrumentalness, 
+//                    liveness, loudness, speechiness, valence, & tempo
+function main() {
+  var qualifier = "energy";
+  var minScore = 0.8;
+  
+  fillPlaylist(qualifier, minScore);
+}
+
+
 function createPlaylist() {
   var sp = getService();
   if (sp.hasAccess()) {
@@ -48,33 +58,36 @@ function getUserID() {
       });
     });
   var result = JSON.parse(response.getContentText());
-  var id = getValues(result, "id")
+  var id = getValues(result, "id");
   return id[0];
 }
 
-function fillPlaylist() {
-  var qualifier = "danceability";
-  var minScore = 5.0;
+function fillPlaylist(qualifier, minScore) {
   
   var bestTracks = calculateBestPlaylist(qualifier, minScore);
+  
   var bestTracksUris = "";
   
   for (var i = 0; i < bestTracks.length; i++) {
-    if (i < bestTracks.length-1) bestTracksUris = bestTracksUris + getTrackUri(bestTracks[i]) + ",";
-    else bestTracksUris = bestTracksUris + getTrackUri(bestTracks[i]);
+    if (i < bestTracks.length-1) bestTracksUris = bestTracksUris + ("\"" + getTrackUri(bestTracks[i]) + "\"" + ",");
+    else bestTracksUris = bestTracksUris + ("\"" + getTrackUri(bestTracks[i]) + "\"");
   }
+  
+  var arr = JSON.parse("[" + bestTracksUris + "]");
   
   var sp = getService();
   if (sp.hasAccess()) {
     
   var payload =  Utilities.jsonStringify(
-    {"uris" : bestTracksUris
+    {"uris" : arr
     }
   );
     
+    Logger.log(payload);
+    
     var playlistID = "6dehfboMSkAogN12rSCZp0"; // future: figure out how to create a new playlist and retrieve its uri or id. 
     var url = "https://api.spotify.com/v1/playlists/" + playlistID + "/tracks";
-      
+    
     // Makes request through refreshToken(), which accommodates for both valid and expired sessions.
     var response = refreshToken(sp, function() {
       return UrlFetchApp.fetch(url, {

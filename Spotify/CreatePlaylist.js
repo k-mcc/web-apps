@@ -1,8 +1,10 @@
 // qualifier options: acousticness, danceability, energy, instrumentalness, 
 //                    liveness, loudness, speechiness, valence, & tempo
 function main() {
-  var qualifier = "energy";
+  var qualifier = "valence";
   var minScore = 0.8;
+  
+  fetchTopArtists();
   
   fillPlaylist(qualifier, minScore);
 }
@@ -12,7 +14,7 @@ function createPlaylist() {
   var sp = getService();
   if (sp.hasAccess()) {
     
-  var name = "API Playist 1";
+  var name = "API Playlist 1";
   var description = "The most danceable songs from top artists. Algorithmically calculated by my web app";
   
   var log = '<br>Upload Includes:<br><br>';

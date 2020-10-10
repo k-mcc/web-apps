@@ -196,7 +196,9 @@ function getValues(obj, key) {
 function analyzeTrackList(tracks, requirements, clean) {
 
   var passingTracks = [];
-  var cleanTracks = getCleanTracks(tracks);
+  if (clean) {
+    var cleanTracks = getCleanTracks(tracks);
+  }
   var properties = getAudioFeatures(tracks);
 
   for (var i = 0; i < tracks.length; i++) {
@@ -206,9 +208,9 @@ function analyzeTrackList(tracks, requirements, clean) {
       var scores = getValues(properties, (requirements[j])[0]);
       if (!compare((requirements[j])[2], scores[i], (requirements[j])[1])) pass = false;
     }
-
-    if (!cleanTracks.includes(tracks[i])) pass = false;
-
+    
+    if (clean) if (!cleanTracks.includes(tracks[i])) pass = false;
+    
     if (pass == true) passingTracks.push(tracks[i]);
   }
   return passingTracks;

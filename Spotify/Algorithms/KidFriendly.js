@@ -7,10 +7,12 @@ function createKidFriendlyPlaylist() {
   var valence = [];
   valence.push("valence");
   valence.push(0.6);
+  valence.push(">=");
   requirements.push(valence);
   var energy = [];
   energy.push("energy");
   energy.push(0.6);
+  energy.push(">=");
   requirements.push(energy);
 
   var httpResponse = createPlaylist("Kid-Friendly Playlist","Kid-friendly top hits from your latest favorite artists, so that everyone in the room can enjoy the music.");

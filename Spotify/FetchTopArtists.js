@@ -82,19 +82,6 @@ function getValues(obj, key) {
     return objects;
 }
 
-function getValues(obj, key) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(getValues(obj[i], key));
-        } else if (i == key) {
-            objects.push(obj[i]);
-        }
-    }
-    return objects;
-}
-
 function getId(idCode) {
   // let idCode = "spotify:artist:1Xyo4u8uXC1ZmMpatF05PJ"
   return idCode.substring(15);

@@ -2,6 +2,16 @@
 // so that everyone in the room can enjoy the music.
 
 function createKidFriendlyPlaylist() {
+  var requirements = [];
+  var valence = [];
+  valence.push("valence");
+  valence.push(0.6);
+  requirements.push(valence);
+  var energy = [];
+  energy.push("energy");
+  energy.push(0.6);
+  requirements.push(energy);
+  
   var httpResponse = createPlaylist("Kid-Friendly Playlist","Kid-friendly top hits from your latest favorite artists, so that everyone in the room can enjoy the music.");
   Logger.log(httpResponse);
   var uris = getValues(httpResponse, "uri");
@@ -9,13 +19,12 @@ function createKidFriendlyPlaylist() {
   for (var i = 0; i < uris.length; i++) {
     if (uris[i].includes("playlist")) playlistId = (uris[i]).substring(17);
   }
-  fillPlaylist(playlistId);
+  fillPlaylist(playlistId, requirements, true);
 }
 
-function fillPlaylist(playlistId) {
+function fillPlaylist(playlistId, requirements, clean) {
   
-  var playlist = getPlaylist();
-  Logger.log(playlist);
+  var playlist = getPlaylist(requirements, clean);
   var trackUris = "";
   
   for (var i = 0; i < playlist.length; i++) {
@@ -58,7 +67,7 @@ function fillPlaylist(playlistId) {
   
 }
 
-function getPlaylist() {
+function getPlaylist(requirements, clean) {
   var playlist = [];
   
   for (var row = 2; row <= sheet.getLastRow(); row++) {
@@ -69,7 +78,6 @@ function getPlaylist() {
     hits.push(getArtistTracks(topArtistId));
     
     var trackType = getValues(hits[0], "type");
-    var trackExplicitness = getValues(hits[0], "explicit");
     var trackUri = getValues(hits[0], "uri");
     
     for (var i = 0; i < trackUri.length; i++) {
@@ -79,7 +87,7 @@ function getPlaylist() {
       }
     }
     
-    var passingTracksInRow = analyzeTrackList(tracks);
+    var passingTracksInRow = analyzeTrackList(tracks, requirements, clean);
     for (var i = 0; i < passingTracksInRow.length; i++) playlist.push(passingTracksInRow[i]);
     
   }
@@ -87,27 +95,23 @@ function getPlaylist() {
   return playlist;
 }
 
-function analyzeTrackList(tracks) {
-  var valenceMin = 0.6;
-  var energyMin = 0.6;
+function analyzeTrackList(tracks, requirements, clean) {
   
   var passingTracks = [];
-  var pass = false;
   
   for (var i = 0; i < tracks.length; i++) {
-    var sum = 0;
     var properties = getTrackProperties(tracks[i]);
+    var pass = true;
     
-    var valenceScore = getValues(properties, "valence");
-    if (valenceScore[0] >= valenceMin) pass = true;
+    for (var j = 0; j < requirements.length; j++) {
+      var score = getValues(properties, (requirements[j])[0]);
+      if (score[0] < (requirements[j])[1]) pass = false;
+    }
     
-    var energyScore = getValues(properties, "energy");
-    if (energyScore[0] >= energyMin) pass = true;
-    else pass = false;
     
+    // if clean, include: 
     var isExplicit = getIsExplicit(tracks[i]);
-    if (isExplicit == false) pass = true;
-    else pass = false;
+    if (isExplicit == true) pass = false;
     
     if (pass == true) passingTracks.push(tracks[i]);
   }

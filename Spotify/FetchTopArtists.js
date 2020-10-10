@@ -21,8 +21,6 @@ function fetchTopArtists() {
     lengthOfTime = "long";
     column = fillCells(column, sp, lengthOfTime);
     
-    getPopularArtistsHits();
-    
   } else {
     var authUrl = sp.getAuthorizationUrl();
     Logger.log('Browse to URL below. Then run the script. %s',
@@ -66,13 +64,24 @@ function fillCells(column, sp, lengthOfTime) {
     var artistId = getId(topArtistsIds[i]);
     cell.offset(i+1, 1).setValue(artistId);
   }
-  
   return column + 2;
-  
 }
 
 /* Returns an array of the artist names contained in the parsed JSON response.
  */
+function getValues(obj, key) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getValues(obj[i], key));
+        } else if (i == key) {
+            objects.push(obj[i]);
+        }
+    }
+    return objects;
+}
+
 function getValues(obj, key) {
     var objects = [];
     for (var i in obj) {

@@ -59,6 +59,33 @@ function getUserID() {
   return id[0];
 }
 
+/* Creates and fills a Kid-Friendly playlist through the Kid-Friendly algorithm.
+ * Makes new playlist and fills it with kid-friendly tracks from the most
+ * popular tracks of the user's top artists within the past 4 weeks.
+ */
+function createKidFriendlyPlaylist() {
+  var requirements = [];
+  var valence = [];
+  valence.push("valence");
+  valence.push(0.6);
+  valence.push(">=");
+  requirements.push(valence);
+  var energy = [];
+  energy.push("energy");
+  energy.push(0.6);
+  energy.push(">=");
+  requirements.push(energy);
+
+  var httpResponse = createPlaylist("Kid-Friendly Playlist","Kid-friendly top hits from your latest favorite artists, so that everyone in the room can enjoy the music.");
+  Logger.log(httpResponse);
+  var uris = getValues(httpResponse, "uri");
+  var playlistId = "";
+  for (var i = 0; i < uris.length; i++) {
+    if (uris[i].includes("playlist")) playlistId = (uris[i]).substring(17);
+  }
+  fillPlaylist(playlistId, requirements, true);
+}
+
 /* @param playlistId      id of the target playlist
  * @param requirements    array of requirements for tracks to be added
  * @param clean           false if added tracks can be marked as "explicit"
@@ -204,7 +231,7 @@ function analyzeTrackList(tracks, requirements, clean) {
 
     for (var j = 0; j < requirements.length; j++) {
       var scores = getValues(properties, (requirements[j])[0]);
-      if (scores[i] < (requirements[j])[1]) pass = false;
+      if (!compare((requirements[j])[2], scores[i], (requirements[j])[1])) pass = false;
     }
 
     if (!cleanTracks.includes(tracks[i])) pass = false;
@@ -294,4 +321,20 @@ function getCleanTracks(idArr) {
  */
 function getTrackUri(trackID) {
   return "spotify:track:" + trackID;
+}
+
+/* @param operator      a String containing the operator that will compare the 2 values
+ * @param score         the value being judged
+ * @param target        the baseline value to be compared to
+ * @return the result of the comparison
+ *
+ * Returns the validity of the score + operator + target statement
+ */
+function compare(operator, score, target) {
+  if (operator == ">") return score > target;
+  else if (operator == "<") return score < target;
+  else if (operator == "<=") return score <= target;
+  else if (operator == ">=") return score >= target;
+  else if (operator == "==") return score == target;
+  else if (operator == "!=") return score != target;
 }

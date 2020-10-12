@@ -11,16 +11,8 @@ function fetchTopArtists() {
   var column = 1;
   var sp = getService();
   if (sp.hasAccess()) {
-    
     var lengthOfTime = "short";
     column = fillCells(column, sp, lengthOfTime);
-    
-    lengthOfTime = "medium";
-    column = fillCells(column, sp, lengthOfTime);
-    
-    lengthOfTime = "long";
-    column = fillCells(column, sp, lengthOfTime);
-    
   } else {
     var authUrl = sp.getAuthorizationUrl();
     Logger.log('Browse to URL below. Then run the script. %s',

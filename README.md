@@ -22,6 +22,6 @@
  * In “View” → “Logs,” browse to the URL provided. 
  * Log into your Spotify account if prompted. 
  * Allow the web app to use the scopes specified earlier. 
- * Close the “Access Granted!” tab. Run __fetchTopArtists()__ again. The “Fetch” sheet should now be filled with your top artists.
+ * Close the “Access Granted!” tab. Run __fetchTopArtists()__ again. The “TopArtists” sheet should now be filled with your top artists.
 
 ![Spotify Access](https://docs.google.com/drawings/d/e/2PACX-1vSTifLCqoex15t7EW7FskW8wVmbmTnscZ19wpU_oVgm7KWsK3qBEo4PyqUA8xmhaIvBSRsuHoSMegi1/pub?w=187&h=237)

@@ -15,9 +15,9 @@
 // Uploads one of the images of that artist as the Playlist Cover Image.
 
 
-function newFavoriteArtist() { // essentially the main method of this script.
+function newFavoriteArtist(artistID) { // essentially the main method of this script.
   
-  var relatedArtists = getRelatedArtists("3kVUvbeRdcrqQ3oHk5hPdx"); // test example: artist related to __tame impala__
+  var relatedArtists = getRelatedArtists(artistID);
   var focusArtist = pickRandomArtist(relatedArtists);
   
   // collect info about the spotlight artist @ this spot.

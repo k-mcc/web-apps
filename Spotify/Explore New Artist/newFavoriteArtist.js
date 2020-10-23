@@ -1,23 +1,23 @@
-// FIND YOUR NEW FAVORITE MUSIC ARTIST
+/* FIND YOUR NEW FAVORITE MUSIC ARTIST
+ * 
+ * Selects a single artist from the array of related artists to the initially chosen artist.
+ * 
+ * Fills a new playlist with 10 of their songs to explore and rank.
+ * 
+ * Searches a separate database for the selected artist and fills playlist description
+ * with certain information about them to make it a more comprehensive experience.
+ * 
+ * Information to display:
+ * 1. Name
+ * 2. Background Information, Genres
+ * 3. "Fun Fact"
+ * 
+ * Uploads one of the images of that artist as the Playlist Cover Image.
+ */
 
-// Selects a single artist from the array of related artists to the initially chosen artist.
-
-// Fills a new playlist with 10 of their songs to explore and RANK.
-
-// Searches a separate database for the selected artist and fills playlist description
-// with certain information about them to make it a more comprehensive experience.
-
-// Information to display:
-// 1. Name
-// 2. Biographical Info
-// 3. Genres
-
-// Uploads one of the images of that artist as the Playlist Cover Image.
-
-
-function newFavoriteArtist(artistID) { // essentially the main method of this script.
+function newFavoriteArtist() { // essentially the main method of this script.
   
-  var relatedArtists = getRelatedArtists(artistID);
+  var relatedArtists = getRelatedArtists("4V8LLVI7PbaPR0K2TGSxFF"); // test example: artist related to __tame impala__
   var focusArtist = pickRandomArtist(relatedArtists);
   
   // collect info about the spotlight artist @ this spot.
@@ -37,6 +37,8 @@ function newFavoriteArtist(artistID) { // essentially the main method of this sc
   
 }
 
+/* Returns an array containing artists related to the given artist
+ */
 function getRelatedArtists(artistId) {
   var sp = getService();
   var url = "https://api.spotify.com/v1/artists/" + artistId + "/related-artists";
@@ -52,9 +54,8 @@ function getRelatedArtists(artistId) {
   return relatedArtists;
 }
 
-// Find the artist in the array with the ______est _____.
-// or
-// Purely random selection from the list of related artists.
+/* Return a random artist from an array of options 
+ */
 function pickRandomArtist(artists) {
   var max = artists.length;
   
@@ -63,11 +64,11 @@ function pickRandomArtist(artists) {
   return artists[randomNum]; // TODO: MAKE THIS RANDOM
 }
 
-// Return the ________ album of the selected artist.
-
-// popularity of album (integer): 
-// The popularity of the album between 0 and 100, with 100 being the most popular. 
-// The popularity is calculated from the popularity of the album’s individual tracks.
+/* Return the most popular album of the selected artist.
+ * popularity of album (integer): 
+ * The popularity of the album between 0 and 100, with 100 being the most popular. 
+ * The popularity is calculated from the popularity of the album’s individual tracks.
+ */
 function getBestAlbum(artistId) {
   var albumIds = getAlbums(artistId);
   var popularities = getAlbumPopularities(albumIds);
@@ -75,7 +76,8 @@ function getBestAlbum(artistId) {
   return mostPopularAlbum;
 }
 
-//Return an array of album ids of the artist.
+/* Return an array of album ids of the artist.
+*/
 function getAlbums(artistId) {
   var sp = getService();
   var url = "https://api.spotify.com/v1/artists/" + artistId + "/albums";
@@ -96,7 +98,7 @@ function getAlbums(artistId) {
   return albumIds;
 }
 
-// Return an array of popularity for the artist's albums.
+ Return an array of popularity for the artist's albums.
 function getAlbumPopularities(albumIds) {
   var str;
   for (var i = 0; i < albumIds.length; i++) {
@@ -146,6 +148,8 @@ function getMax(keys, values) { //returns the key with the highest value.
   }
 }
 
+/* Return an array containing all tracks in the album
+*/
 function getAlbumTracks(albumId) {
   
   var sp = getService();
@@ -174,8 +178,8 @@ function getAlbumTracks(albumId) {
   return tracks;
 }
 
-
-// Creates a new playlist with an appropriate name, description, and image for the artist.
+/* Creates a new playlist with an appropriate name, description, and image for the artist.
+*/
 function makePlaylist(artistId) {
   var sp = getService();
   var url = "https://api.spotify.com/v1/artists/" + artistId;
@@ -199,11 +203,6 @@ function makePlaylist(artistId) {
   var httpResponse = createPlaylist(name, description);
   //Logger.log(httpResponse);
   return httpResponse;
-}
-
-function main() {
-  var str = callMusicService("Tame Impala");
-  Logger.log(str);
 }
 
 function callMusicService(searchTerm) {

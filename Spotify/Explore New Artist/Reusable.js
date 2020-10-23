@@ -1,4 +1,9 @@
-// Creates a new playlist with the specified name and description.
+/* @param name            name of playlist
+ * @param description     description of playlist
+ * @return parsed response of the PUSH request
+ *
+ * Creates a new playlist with the specified name and description.
+ */
 function createPlaylist(name, description) {
   var sp = getService();
   if (sp.hasAccess()) {

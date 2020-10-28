@@ -261,9 +261,9 @@ function shufflePlaylistTest() {
   //Logger.log(focusAlbum);
   var tracksInAlbum = getAlbumTracks(focusAlbum); 
   Logger.log("Sorted Playlist: " + tracksInAlbum);
-  var randomPlaylist = randomizePlaylist(tracksInAlbum);
-  Logger.log("Shuffled Playlist: " + randomPlaylist);
-  fillPlaylist(playlistId, randomPlaylist);
+  var shuffled = shufflePlaylist(tracksInAlbum);
+  Logger.log("Shuffled Playlist: " + shuffled);
+  fillPlaylist(playlistId, shuffled);
 }
 
 /* @param playlist

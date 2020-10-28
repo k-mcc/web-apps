@@ -244,7 +244,7 @@ function getFirstXSentences(text, x) { //remove any "/n" or "/t" segments.
   return abridge + ".";
 }
 
-function randomizePlaylistTest() {
+function shufflePlaylistTest() {
   //var relatedArtists = getRelatedArtists("4yvcSjfu4PC0CYQyLy4wSq"); // test example: artist related to __tame impala__
   //var focusArtist = pickRandomArtist(relatedArtists);
   var focusArtist = "4yvcSjfu4PC0CYQyLy4wSq";
@@ -271,11 +271,11 @@ function randomizePlaylistTest() {
  * 
  * Sorts the playlist into a randomized order.
  */
-function randomizePlaylist(playlist) {
+function shufflePlaylist(playlist) {
   
-  var arra1 = playlist;
+  var shuffled = playlist;
   
-  var ctr = arra1.length, temp, index;
+  var ctr = shuffled.length, temp, index;
 
   // While there are elements in the array
     while (ctr > 0) {
@@ -285,9 +285,9 @@ function randomizePlaylist(playlist) {
         ctr--;
       // And swap the last element with it
         temp = arra1[ctr];
-        arra1[ctr] = arra1[index];
-        arra1[index] = temp;
+        shuffled[ctr] = shuffled[index];
+        shuffled[index] = temp;
     }
-    return arra1;
+    return shuffled;
   
 }

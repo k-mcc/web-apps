@@ -146,7 +146,7 @@ function getMax(keys, values) { //returns the key with the highest value.
   }
 }
 
-function getAlbumTracks(albumId) {
+function getNumAlbumTracks(albumId, numTracks) {
   
   var sp = getService();
   var url = "https://api.spotify.com/v1/albums/" + albumId + "/tracks";
@@ -159,10 +159,11 @@ function getAlbumTracks(albumId) {
       });
     });
   var result = JSON.parse(response.getContentText());
-  //Logger.log(result);
+  Logger.log(result);
   
   var items = getValues(result, "id"); // ids of the tracks in the album
   var typesOfItems = getValues(result, "type"); // ids of the tracks in the album
+  //var popularities = getValues(result, "popularity"); // popularities of the tracks in the album
   
   var tracks = [];
   
@@ -170,10 +171,77 @@ function getAlbumTracks(albumId) {
     if (typesOfItems[i] == "track") tracks.push(items[i]);
   }
   
+  var popularities = getTrackPopularities(tracks);
   //Logger.log(tracks);
-  return tracks;
+ // Logger.log(popularities);
+  var ranked = rankTracks(tracks, popularities);
+  
+  //Logger.log(ranked);
+  
+  
+  if (numTracks > 0) {
+    var rankedCutOff = [];
+    
+    for (var i = 0; i < numTracks; i++) {
+      if (ranked.length - i >= 0) {
+        rankedCutOff.push(ranked[ranked.length-1 - i]);
+      }
+    }
+    
+    return rankedCutOff;
+  }
+  
+  else {
+    return ranked;
+  }
+  
 }
 
+// Return an array of popularity for the albums's tracks.
+function getTrackPopularities(tracksIds) {
+  var str;
+  for (var i = 0; i < tracksIds.length; i++) {
+    if (i != 0) str = str + "%2C" + tracksIds[i];
+    else str = tracksIds[i];
+  }
+  
+  var sp = getService();
+  var url = "https://api.spotify.com/v1/tracks?ids=" + str;
+  var response = refreshToken(sp, function() {
+      return UrlFetchApp.fetch(url, {
+        headers: {
+          Authorization: 'Bearer ' + sp.getAccessToken(),
+        }
+      });
+    });
+  var result = JSON.parse(response.getContentText());
+  
+  var popularities = getValues(result, "popularity"); // popularity of each album
+  
+  return popularities;
+}
+
+function rankTracks(tracks, pops) {
+  
+  for (let i = 1; i < pops.length; i++) {
+    let j = i - 1;
+    let temp = pops[i];
+    let trackTemp = tracks[i];
+    while (j >= 0 && pops[j] > temp) {
+      pops[j + 1] = pops[j];
+      tracks[j + 1] = tracks[j];
+      j--;
+    }
+    pops[j+1] = temp;
+    tracks[j+1] = trackTemp;
+  }
+  return tracks;
+  
+}
+
+function getAlbumTracks(albumId) {
+  return getNumAlbumTracks(albumId, -1);
+}
 
 // Creates a new playlist with an appropriate name, description, and image for the artist.
 function makePlaylist(artistId) {
@@ -215,7 +283,7 @@ function callMusicService(searchTerm) {
   var result = response.getContentText();
   //var summArr = getValues(result, "summary");
   
-  
+  // remove any chars like "/n" or "/t" from the description.
   var abridge = result.substring(result.indexOf("summary") + 10);
   //Logger.log(abridge);
   
@@ -247,23 +315,57 @@ function getFirstXSentences(text, x) { //remove any "/n" or "/t" segments.
 function shufflePlaylistTest() {
   //var relatedArtists = getRelatedArtists("4yvcSjfu4PC0CYQyLy4wSq"); // test example: artist related to __tame impala__
   //var focusArtist = pickRandomArtist(relatedArtists);
-  var focusArtist = "4yvcSjfu4PC0CYQyLy4wSq";
+  var artist1 = "4yvcSjfu4PC0CYQyLy4wSq";
   // collect info about the spotlight artist @ this spot.
   
-  var httpResponse = makePlaylist(focusArtist);
+  var httpResponse = makePlaylist(artist1);
   var uris = getValues(httpResponse, "uri");
   var playlistId = "";
   for (var i = 0; i < uris.length; i++) {
     if (uris[i].includes("playlist")) playlistId = (uris[i]).substring(17);
   }
   
-  var focusAlbum = getBestAlbum(focusArtist);
+  var limit = 4;
+  
+  var focusAlbum1 = getBestAlbum(artist1);
   //Logger.log(focusAlbum);
-  var tracksInAlbum = getAlbumTracks(focusAlbum); 
-  Logger.log("Sorted Playlist: " + tracksInAlbum);
-  var shuffled = shufflePlaylist(tracksInAlbum);
-  Logger.log("Shuffled Playlist: " + shuffled);
+  var tracksInAlbum1 = getNumAlbumTracks(focusAlbum1, limit); // call a get __#__ best tracks in album method
+  //how to MERGE 2+ arrays and THEN shuffle? fill at once = less api calls as well
+  
+  var unshuffled = [];
+  
+  for (var i = 0; i < tracksInAlbum1.length; i++) {
+    unshuffled.push(tracksInAlbum1[i]);
+  }
+  
+  var relatedArtists = getRelatedArtists(artist1);
+  var artist2 = pickRandomArtist(relatedArtists);
+  var focusAlbum2 = getBestAlbum(artist2);
+  var tracksInAlbum2 = getNumAlbumTracks(focusAlbum2, limit-1);
+  
+  for (var j = 0; j < tracksInAlbum2.length; j++) {
+    unshuffled.push(tracksInAlbum2[j]);
+  }
+  
+  var artist3 = pickRandomArtist(relatedArtists);
+  var focusAlbum3 = getBestAlbum(artist3);
+  var tracksInAlbum3 = getNumAlbumTracks(focusAlbum3, limit-2);
+  
+  for (var j = 0; j < tracksInAlbum3.length; j++) {
+    unshuffled.push(tracksInAlbum3[j]);
+  }
+  
+  var artist4 = pickRandomArtist(relatedArtists);    //automate this hard-coded process of subtracting limit, repping artist filling process, 4x or HOWEVER MANY x.
+  var focusAlbum4 = getBestAlbum(artist4); 
+  var tracksInAlbum4 = getNumAlbumTracks(focusAlbum4, limit-3);
+  
+  for (var j = 0; j < tracksInAlbum4.length; j++) {
+    unshuffled.push(tracksInAlbum4[j]);
+  }
+  
+  var shuffled = shufflePlaylist(unshuffled);
   fillPlaylist(playlistId, shuffled);
+  
 }
 
 /* @param playlist
@@ -284,7 +386,7 @@ function shufflePlaylist(playlist) {
       // Decrease ctr by 1
         ctr--;
       // And swap the last element with it
-        temp = arra1[ctr];
+        temp = shuffled[ctr];
         shuffled[ctr] = shuffled[index];
         shuffled[index] = temp;
     }
